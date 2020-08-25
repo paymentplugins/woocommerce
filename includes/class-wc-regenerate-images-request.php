@@ -241,7 +241,15 @@ class WC_Regenerate_Images_Request extends WC_Background_Process {
 	 * @return array
 	 */
 	public function adjust_intermediate_image_sizes( $sizes ) {
-		return apply_filters( 'woocommerce_regenerate_images_intermediate_image_sizes', array( 'woocommerce_thumbnail', 'woocommerce_gallery_thumbnail', 'woocommerce_single' ) );
+		// Prevent a filter loop.
+		static $filtered_sizes = array( 'woocommerce_thumbnail', 'woocommerce_gallery_thumbnail', 'woocommerce_single' );
+		static $in_filter      = false;
+		if ( ! $in_filter ) {
+			$in_filter      = true;
+			$filtered_sizes = apply_filters( 'woocommerce_regenerate_images_intermediate_image_sizes', $filtered_sizes );
+			$in_filter      = false;
+		}
+		return $filtered_sizes;
 	}
 
 	/**
